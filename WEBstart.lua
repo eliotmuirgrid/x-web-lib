@@ -1,8 +1,8 @@
 require 'WEB.WEBstatus'
 
-local function processHTTPSconfigurations(Config)
-   local Cert = component.fields().Certificate
-   local Key  = component.fields().PrivateKey
+function WEBsetHttpsConfig(Certificate, PrivateKey, Config)
+   local Cert = Certificate
+   local Key  = PrivateKey
    if "Use Iguana's SSL certificate" == Cert and "Use Iguana's private key" == Key then
       -- Get Iguana web server's certificate and private key
       local Result = iguana.call{api="/web/server", live=true}
@@ -16,13 +16,13 @@ local function processHTTPSconfigurations(Config)
    Config.key  = Key
 end
 
-function StartServer()
-   local CustomFields = component.fields()
-   local Config = { port = CustomFields.Port }
-   if CustomFields.UseHTTPS then
-      processHTTPSconfigurations(Config)
+function WEBstartServer(Port, UseHTTPS, Certificate, PrivateKey)
+   local Config = { port = Port }
+   if UseHTTPS then
+      WEBsetHttpsConfig(Certificate, PrivateKey, Config)
    end
    trace(Config)
+   
    net.http.listen(Config)
    WEBstatus(Config)
 end
